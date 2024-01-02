@@ -1,0 +1,8 @@
+.main {
+    margin-top: 2.4rem;
+    height: auto;
+    min-height: 100vh;
+    display: flex;
+    gap: 2.4rem;
+    justify-content: center;
+}
