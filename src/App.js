@@ -15,7 +15,9 @@ import SelectedMovie from "./components/SelectedMovie/SelectedMovie";
 export default function App() {
 
   const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState(JSON.parse(localStorage.getItem("watched")) ?? []);
+  const [watched, setWatched] = useState(() => {
+    return JSON.parse(localStorage.getItem("watched"))
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
@@ -24,6 +26,30 @@ export default function App() {
   const numMovies = movies?.length;
   const KEY = '1453ea82';
 
+  function handleAddWatched(movie) {
+    if(movie.isBeforeWatched) {
+      setWatched(watched => watched.map(beforeMovie => beforeMovie.imdbID === movie.imdbID ? {...beforeMovie, userRating: movie.userRating} : beforeMovie))
+    }
+    else {
+      setWatched((watched) => [...watched, movie]);
+    }
+    setSelectedId(null);
+  }
+
+  function handleDeleteWatched(id) {
+    const newWatched = watched.filter(movieWatched => movieWatched.imdbID !== id);
+    setWatched(newWatched);
+  }
+   
+  function handleSelectMovie(id) {
+    setSelectedId((curId) => curId === id ? null : id);
+  }
+
+  function handleCloseMovie() {
+    setSelectedId(null);
+    setMovieSelected({});
+  }
+  
   useEffect(() => {
 
     const controller = new AbortController();
@@ -61,33 +87,10 @@ export default function App() {
     }
   }, [query])
 
-  
-  function handleSelectMovie(id) {
-    setSelectedId((curId) => curId === id ? null : id);
-  }
+  useEffect(() => {
+      localStorage.setItem("watched", JSON.stringify(watched))
+  }, [watched])
 
-  function handleCloseMovie() {
-    setSelectedId(null);
-    setMovieSelected({});
-  }
-
-  function handleAddWatched(movie) {
-    if(movie.isBeforeWatched) {
-      setWatched(watched => watched.map(beforeMovie => beforeMovie.imdbID === movie.imdbID ? {...beforeMovie, userRating: movie.userRating} : beforeMovie))
-      localStorage.setItem("watched", JSON.stringify(watched.map(beforeMovie => beforeMovie.imdbID === movie.imdbID ? {...beforeMovie, userRating: movie.userRating} : beforeMovie)))
-    }
-    else {
-      setWatched((watched) => [...watched, movie]);
-      localStorage.setItem("watched", JSON.stringify([...watched, movie]))
-    }
-    setSelectedId(null);
-  }
-
-  function handleDeleteWatched(id) {
-    const newWatched = watched.filter(movieWatched => movieWatched.imdbID !== id);
-    setWatched(newWatched);
-  }
-  
   return (
     <>
       <NavBar>
